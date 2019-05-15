@@ -20,6 +20,9 @@ I've tested:
  - Tested just the indexing of the single large random tensor to see if it was impacted (no slowdown)
 
 **This is possibly due to a int (or long) variable in the memory addressing of the tensor**
-If I calculate the size of the tensor where the slowdown occurs (45x4bytesx~12M = 2.16B) that's suspiciously close to the in limit of 2147483647
 
-What's strange is that the slowdown only occurs if there is significant access in that range.  I tested a tensor that was 4 bytes larger (and one that was 100K larger) and neither of those displayed significant problems.  It's only when it's much larger that it seems to cause the issue.
+If I calculate the size of the tensor where the slowdown occurs (45x4bytesx~12M = 2.16B) that's suspiciously close to the in limit of 2147483647.
+
+What's strange is that the slowdown only occurs if there is significant access beyond that range.  I tested a tensor that was 4 bytes larger (and one that was 100K larger) and neither of those displayed significant problems.  It's only when it's much larger that it seems to cause the issue.
+
+As mentioned above, for a larger tensor if I start accessing in that region the slowdown is immediate and much more pronounced.
