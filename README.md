@@ -18,4 +18,8 @@ I've tested:
  - **Breaking up the tensor into multiple blocks to see if being contiguous matters** (multiple tensors don't have the same effect.  Only one larger tensor demonstrates this issue)
  - Started with multiple blocks and concated together on the GPU.  (issue shows up again.  seems to indicate a possible indexing issue.
  - Tested just the indexing of the single large random tensor to see if it was impacted (no slowdown)
- 
+
+**This is possibly due to a int (or long) variable in the memory addressing of the tensor**
+If I calculate the size of the tensor where the slowdown occurs (45x4bytesx~12M = 2.16B) that's suspiciously close to the in limit of 2147483647
+
+What's strange is that the slowdown only occurs if there is significant access in that range.  I tested a tensor that was 4 bytes larger (and one that was 100K larger) and neither of those displayed significant problems.  It's only when it's much larger that it seems to cause the issue.
