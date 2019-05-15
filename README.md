@@ -15,5 +15,6 @@ I've tested:
  - Different GPUs, although all on the same DGX-1 (hopefully validating hardware is functioning)
  - Artifically starting the dataloader at the point where it slows down. (Slowdown is immediate and performance is much worse (25K samples/s)
  - **Breaking up the tensor into multiple blocks to see if being contiguous matters** (multiple tensors don't have the same effect.  Only one larger tensor demonstrates this issue)
- - Tested just the indexing of the single large tensor (no slowdown)
+ - Started with multiple blocks and concated together on the GPU.  (issue shows up again.  seems to indicate a possible indexing issue.
+ - Tested just the indexing of the single large random tensor to see if it was impacted (no slowdown)
  
