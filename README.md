@@ -11,6 +11,7 @@ I'm not sure if it's specific to the dgx-1 / v100 cards or if it's a general iss
 
 I've tested:
  - Different tensor shapes (2x wider tensors results in degredation at ~6M samples)
+ - Changed the tensor size to be within the limit (no slowdown occurs)
  - CPU Memory (No issues)
  - Different GPUs, although all on the same DGX-1 (hopefully validating hardware is functioning)
  - Artifically starting the dataloader at the point where it slows down. (Slowdown is immediate and performance is much worse (25K samples/s)
