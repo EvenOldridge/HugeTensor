@@ -13,4 +13,7 @@ I've tested:
  - Different tensor shapes (2x wider tensors results in degredation at ~6M samples)
  - CPU Memory (No issues)
  - Different GPUs, although all on the same DGX-1 (hopefully validating hardware is functioning)
+ - Artifically starting the dataloader at the point where it slows down. (Slowdown is immediate and performance is much worse (25K samples/s)
+ - *Breaking up the tensor into multiple blocks to see if being contiguous matters* (multiple tensors don't have the same effect.  Only one larger tensor demonstrates this issue)
+ - Tested just the indexing of the single large tensor (no slowdown)
  
