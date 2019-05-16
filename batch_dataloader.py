@@ -2,22 +2,29 @@ import torch
 from torch import _utils
 
 class BatchDataLoader(object):
-    __initialized = False
+    """
+    Batch Data loader. Takes in a batch dataset and returns iterators that return whole batches of data.
+    Arguments:
+        batchdataset (BatchDataset): dataset from which to load the data.
+        shuffle (bool, optional): set to ``True`` to have the data reshuffled
+            at every epoch (default: ``False``).
+        pin_memory (bool, optional): If ``True``, the data loader will copy tensors
+            into CUDA pinned memory before returning them.
+        drop_last (bool, optional): set to ``True`` to drop the last incomplete batch,
+            if the dataset size is not divisible by the batch size. If ``False`` and
+            the size of dataset is not divisible by the batch size, then the last batch
+            will be smaller. (default: ``False``)
+    """
 
     def __init__(self, batchdataset, shuffle=False,
-                 pin_memory=False, num_workers = 0):
+                 pin_memory=False, drop_last=False):
         self.batchdataset = batchdataset
         self.batch_size = batchdataset.batch_size
-        self.pin_memory = pin_memory
+
         self.shuffle = shuffle
-        self.__initialized = True
+        self.pin_memory = pin_memory
+        self.drop_last = drop_last
 
-    def __setattr__(self, attr, val):
-        if self.__initialized and attr in ('batch_size', 'sampler', 'drop_last'):
-            raise ValueError('{} attribute should not be set after {} is '
-                             'initialized'.format(attr, self.__class__.__name__))
-
-        super(BatchDataLoader, self).__setattr__(attr, val)
 
     def __iter__(self):
         return _BatchDataLoaderIter(self)
@@ -27,20 +34,27 @@ class BatchDataLoader(object):
 
     
 class _BatchDataLoaderIter(object):
+    """Iterates once over the BatchDataLoader's batchdataset, shuffling if requested"""
     def __init__(self, loader):
         self.batchdataset = loader.batchdataset
         self.batch_size = loader.batch_size
         self.pin_memory = loader.pin_memory and torch.cuda.is_available()
+        self.drop_last = loader.drop_last
 
         if loader.shuffle:
             self.batchdataset.shuffle()
+
         self.idx = 0
 
     def __len__(self):
-        return len(self.batchdataset) // self.batch_size
+        if self.drop_last or len(self.batchdataset)%self.batch_size == 0:
+            return len(self.batchdataset) // self.batch_size
+        else:
+            return len(self.batchdataset) // self.batch_size + 1
+         
     
     def __next__(self):
-        if self.idx+1 > len(self):
+        if self.idx >= len(self):
             raise StopIteration
         batch = self.batchdataset[self.idx]
         # Note Pinning memory was ~10% _slower_ for the test examples I explored
